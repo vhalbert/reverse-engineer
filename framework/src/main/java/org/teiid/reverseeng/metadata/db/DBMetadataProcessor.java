@@ -26,17 +26,17 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.teiid.core.TeiidException;
 import org.teiid.core.TeiidProcessingException;
+import org.teiid.reverseeng.Options;
 import org.teiid.reverseeng.ReverseEngineerPlugin;
 import org.teiid.reverseeng.api.Column;
+import org.teiid.reverseeng.api.Column.NullType;
 import org.teiid.reverseeng.api.MetadataProcessor;
 import org.teiid.reverseeng.api.Table;
-import org.teiid.reverseeng.api.Column.NullType;
 
 /**
  * @author vanhalbert
@@ -51,22 +51,33 @@ public final class DBMetadataProcessor implements MetadataProcessor {
 	private String catalogPattern = "%";
 	private String schemaPattern = "%";
 	
+	@Override
 	public List<Table> getTableMetadata() {
 		return this.tableMetadata;
 	}
 	
-	public static  MetadataProcessor loadMetadata(Connection connection, DBOptions options) throws Exception {
-		DBMetadataProcessor dbmp = new DBMetadataProcessor();
-		dbmp.performLoad(connection, options);
-		return dbmp;
-	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see org.teiid.reverseeng.api.MetadataProcessor#loadMetadata(java.lang.Object, org.teiid.reverseeng.Options)
+	 */
+	@Override
+	public void loadMetadata(Object metadataSource, Options options)
+			throws TeiidException {
+		performLoad((Connection) metadataSource, (DBOptions) options);
+	}	
 		
-	private void performLoad(Connection connection, DBOptions options) throws Exception {
+	private void performLoad(Connection connection, DBOptions options) throws TeiidException {
 		
 		tableNamePattern.add( "%");
-		
-		DatabaseMetaData metadata = connection.getMetaData();
-		quoteString = metadata.getIdentifierQuoteString();
+		DatabaseMetaData metadata = null;
+		try {
+			metadata = connection.getMetaData();
+			quoteString = metadata.getIdentifierQuoteString();
+		} catch (SQLException sqle) {
+			throw new TeiidException(sqle);
+		}
+			
 		if (quoteString != null && quoteString.trim().length() == 0) {
 			quoteString = null;
 		}
@@ -232,8 +243,6 @@ public final class DBMetadataProcessor implements MetadataProcessor {
 		}
 
 		indexInfo.close();
-	}	
-	
-	
+	}
 
 }

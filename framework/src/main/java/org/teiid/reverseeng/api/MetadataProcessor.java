@@ -23,11 +23,15 @@ package org.teiid.reverseeng.api;
 
 import java.util.List;
 
+import org.teiid.core.TeiidException;
+import org.teiid.reverseeng.Options;
+
 /**
  * @author vanhalbert
  *
  */
-public interface MetadataProcessor {
+public interface MetadataProcessor  {
 
+	void loadMetadata(Object metadataSource, Options options) throws TeiidException;
 	List<Table> getTableMetadata();
 }

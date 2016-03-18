@@ -34,9 +34,7 @@ import org.junit.Test;
 import org.teiid.core.util.UnitTestUtil;
 import org.teiid.reverseeng.Options;
 import org.teiid.reverseeng.ReverseEngineerFactory;
-import org.teiid.reverseeng.metadata.db.DBMetadataProcessor;
 import org.teiid.reverseeng.metadata.db.DBOptions;
-import org.teiid.reverseeng.pojo.PojoProcessing;
 
 /**
  * @author vanhalbert
@@ -81,26 +79,7 @@ public class TestPojoProcessing {
 		  
 		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "noannotations");
 		  
-//		  options.setAnnotationType(Options.Annotation_Type.Hibernate);
-		  
 		  ReverseEngineerFactory.perform(conn, options);
-		    	  
-//		  DBMetadataProcessor metadata = DBMetadataProcessor.loadMetadata(conn, options);
-  	
-//			PojoProcessing tp = new PojoProcessing(options);
-//			tp.processTables(metadata);
-    	
-//    	
-//    	
-//    	
-//		  DBMetadataProcessor metadata = DBMetadataProcessor.loadMetadata(conn, null, null, tables);
-//
-//		  String path = UnitTestUtil.getTestScratchPath() + File.separatorChar+ "noannotations";
-//		  File f = new File(path);
-//		  f.mkdirs();
-//    	
-//			TemplateProcessing tp = new TemplateProcessing(path);
-//			tp.processTables(metadata);
     }
     
     @Test
@@ -119,22 +98,6 @@ public class TestPojoProcessing {
 		  options.setAnnotationType(Options.Annotation_Type.Hibernate);
 
 		  ReverseEngineerFactory.perform(conn, options);
-		  
-//		  DBMetadataProcessor metadata = DBMetadataProcessor.loadMetadata(conn, options);
-//	
-//			PojoProcessing tp = new PojoProcessing(options);
-//			tp.processTables(metadata);    	
-    	
-// 
-//		  Options o = new Options();
-//		  o.setAnnotationType(Options.Annotation_Type.Hibernate);
-//    	
-//		  String path = UnitTestUtil.getTestScratchPath() + File.separatorChar+ "hibernateannotations";
-//		  File f = new File(path);
-//		  f.mkdirs();
-//    	
-//			TemplateProcessing tp = new TemplateProcessing(path, o);
-//			tp.processTables(metadata);
     }   
 
     @Test
@@ -154,26 +117,5 @@ public class TestPojoProcessing {
 		    	  
 		  ReverseEngineerFactory.perform(conn, options);
 
-//		  DBMetadataProcessor metadata = DBMetadataProcessor.loadMetadata(conn, options);
-//	
-//			PojoProcessing tp = new PojoProcessing(options);
-//			tp.processTables(metadata);    	 	
-    	
-    	
-//    	
-//		  List<String> tables =  new ArrayList<String>();
-//		  tables.add("%");
-//		  
-//		  DBMetadataProcessor metadata = DBMetadataProcessor.loadMetadata(conn, null, null, tables);
-//
-//		  Options o = new Options();
-//		  o.setAnnotationType(Options.Annotation_Type.Protobuf);
-//    	
-//		  String path = UnitTestUtil.getTestScratchPath() + File.separatorChar+ "protobufannotations";
-//		  File f = new File(path);
-//		  f.mkdirs();
-//    	
-//			TemplateProcessing tp = new TemplateProcessing(path, o);
-//			tp.processTables(metadata);
     }   
 }

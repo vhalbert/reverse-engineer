@@ -36,47 +36,66 @@ import org.teiid.reverseeng.pojo.PojoProcessing;
  */
 public class ReverseEngineerFactory {
 	
+	private static Collection<Exception> errors;
+
 	/** 
 	 * Call to reverse engineer from a database connection
 	 * @param connection
 	 * @param options
+	 * @return boolean indicator if the process was success, return <code>false</code> then check for errors
 	 * @throws Exception
 	 */
-	public static void perform(Connection connection, DBOptions options) throws Exception {
+	public static boolean perform(Connection connection, DBOptions options) throws Exception {
 		    
-	  MetadataProcessor metadata = DBMetadataProcessor.loadMetadata(connection, options);
+		errors = null;
+	
+		
+	  MetadataProcessor metadata = new DBMetadataProcessor(); 
+			  
+	  metadata.loadMetadata(connection, options);
   	
 	  PojoProcessing tp = new PojoProcessing(options);
 	  boolean success = tp.processTables(metadata);
 	  
 	  if (!success) checkErrors(tp);
 	  
+	  return success;
 	} 
 	
 	/**
 	 * Call to reverse engineer from a Teiid Designer table metadata object
 	 * @param table
 	 * @param options
+	 * @return boolean indicator if the process was success, return <code>false</code> then check for errors
 	 * @throws Exception
 	 */
-	public static void perform(org.teiid.designer.metamodels.relational.Table table, Options options) throws Exception {
+	public static boolean perform(org.teiid.designer.metamodels.relational.Table table, Options options) throws Exception {
+	    errors = null;
 	    
-		  MetadataProcessor metadata = RelationalMetadataProcessor.loadMetadata(table, options);
+		  MetadataProcessor metadata = new RelationalMetadataProcessor();
+		  metadata.loadMetadata(table, options);
 	  	
 		  PojoProcessing tp = new PojoProcessing(options);
 		  boolean success = tp.processTables(metadata);
 
 		  if (!success) checkErrors(tp);
+		  
+		  return success;
 
 	} 
 	
+	public static Collection<Exception> getErrors() {
+		return errors;
+	}
+
+	
 	private static void checkErrors(PojoProcessing pp) {
-		  Collection<Exception> errors = pp.getExceptions();
-		  for (Exception e : errors) {
-			  System.err.println("***********************************");
-			  System.err.println(e);
-			  System.err.println("***********************************");
-		  }
+		  errors = pp.getExceptions();
+//		  for (Exception e : errors) {
+//			  System.err.println("***********************************");
+//			  System.err.println(e);
+//			  System.err.println("***********************************");
+//		  }
 	}
 
 }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>org.teiid.util</groupId>
+		<artifactId>reverse-engineer</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<!-- <parent> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-parent</artifactId> 
+		<version>7.4.2.Final-redhat-2</version> </parent> -->
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>teiid-desginer-apis</artifactId>
+	<name>Teiid Designer API's</name>
+	<description>Teiid Designer API to support using in tooling</description>
+
+	<properties>
+		
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.eclipse.emf</groupId>
+		  <artifactId>org.eclipse.emf.ecore</artifactId>
+			<scope>provided</scope>
+		</dependency>   
+		<dependency>
+		  <groupId>org.eclipse.emf</groupId>
+		  <artifactId>org.eclipse.emf.common</artifactId>
+			<scope>provided</scope>
+		</dependency>		        
+	</dependencies>
+
+	<build>
+		<outputDirectory>target/classes</outputDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/*.xml</exclude>
+					<exclude>**/*.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+</project>
