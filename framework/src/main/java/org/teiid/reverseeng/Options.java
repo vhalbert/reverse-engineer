@@ -41,8 +41,8 @@ public class Options {
 		public static final String BUILD_LOCATION = "build_location";
 		/* [Optional] The package name to use for the java files */
 		public static final String POJO_PACKAGE_NAME = "pojo_package_name";
-		/* [Optional] The pojo jar name  */
-		public static final String POJO_JAR_NAME = "pojo_jar_name";
+		/* [Optional] The pojo jar file, with preferable, including the full path  */
+		public static final String POJO_JAR_FILE = "pojo_jar_file";
 
 		/* [Optional] Choose either Hiberanate or Protobuf annotations to the java file */
 		public static final String ANNOTATION = "annotation";
@@ -52,7 +52,7 @@ public class Options {
 	public interface Parms_Defaults {
 		public static final String DEFAULT_POJO_PACKAGE_NAME = "org.teiid.pojo";
 		public static final String DEFAULT_BUILD_LOCATION = ".";
-		public static final String DEFAULT_POJO_JAR_NAME = "pojo.jar";
+		public static final String DEFAULT_POJO_JAR_FILE = "pojo.jar";
 	}
 	
 	private Properties properties = new Properties();

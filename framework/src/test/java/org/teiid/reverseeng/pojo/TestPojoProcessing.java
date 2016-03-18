@@ -78,6 +78,7 @@ public class TestPojoProcessing {
 		  options.setTables(tables);
 		  
 		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "noannotations");
+		  options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "noannotations.jar");
 		  
 		  ReverseEngineerFactory.perform(conn, options);
     }
@@ -94,6 +95,7 @@ public class TestPojoProcessing {
 		  options.setTables(tables);
 		  
 		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "hibernateannotations");
+		  options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar+  "hibernateannotations.jar");
 		  
 		  options.setAnnotationType(Options.Annotation_Type.Hibernate);
 
@@ -112,6 +114,8 @@ public class TestPojoProcessing {
 		  options.setTables(tables);
 		  
 		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "protobufannotations");
+		  options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "jarfile" + File.separatorChar + "protobufannotations.jar");
+		  options.setProperty(Options.Parms.POJO_PACKAGE_NAME,  "org.jboss.teiid.protobuf.annotation");
 		  
 		  options.setAnnotationType(Options.Annotation_Type.Protobuf);
 		    	  

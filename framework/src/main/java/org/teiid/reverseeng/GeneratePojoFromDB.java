@@ -114,7 +114,7 @@ public class GeneratePojoFromDB {
 	  annotation =props.getProperty(Options.Parms.ANNOTATION, null);
 	  build_location = props.getProperty(Options.Parms.BUILD_LOCATION, null);
 	  packagename = props.getProperty(Options.Parms.POJO_PACKAGE_NAME, null);
-	  pojoJarName = props.getProperty(Options.Parms.POJO_JAR_NAME, null);
+	  pojoJarName = props.getProperty(Options.Parms.POJO_JAR_FILE, null);
 	  
 
 	  try {
@@ -147,7 +147,7 @@ public class GeneratePojoFromDB {
 		  
 		  options.setProperty(Options.Parms.ANNOTATION, annotation);
 		  options.setProperty(Options.Parms.POJO_PACKAGE_NAME, packagename);
-		  options.setProperty(Options.Parms.POJO_JAR_NAME, pojoJarName);
+		  options.setProperty(Options.Parms.POJO_JAR_FILE, pojoJarName);
 
 		  ReverseEngineerFactory.perform(conn, options);
 	  

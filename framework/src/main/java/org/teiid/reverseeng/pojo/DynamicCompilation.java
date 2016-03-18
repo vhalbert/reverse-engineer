@@ -43,6 +43,7 @@ import javax.tools.ToolProvider;
 
 import org.teiid.core.util.FileUtils;
 import org.teiid.core.util.StringUtil;
+import org.teiid.reverseeng.ReverseEngineerPlugin;
 
 /**
  * Reference for dynamically compiling and assembly
@@ -60,20 +61,31 @@ public class DynamicCompilation {
 		files.put(f, classname);
 	}
 
-	public void compile(File loc, String pathLoc, String pojoJarName)
+	/**
+	 * 
+	 * @param loc is where to find the .class files that were compiled
+	 * @param packageNameInJar is the package name to use when adding to archive
+	 * @param fullPathToJar is the full path of the jar to be created
+	 * @throws Exception
+	 */
+	public void compile(File loc, String packageNameInJar, String fullPathToJar)
 			throws Exception {
 
-		t(loc);
+		compileFiles();
 
 		File[] files = FileUtils.findAllFilesInDirectoryHavingExtension(
 				loc.getCanonicalPath(), ".class");
 
-		File archive = new File(pojoJarName);
-		createJarArchive(archive, files, pathLoc);
+		File archive = new File(fullPathToJar);
+		File parent = archive.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
+		createJarArchive(archive, files, packageNameInJar);
 
 	}
 
-	private void t(File path) throws Exception {
+	private void compileFiles() throws Exception {
 
 		// Compile classes
 		JavaCompiler compilerTool = ToolProvider.getSystemJavaCompiler();
@@ -104,8 +116,7 @@ public class DynamicCompilation {
 			for (File f : files.keySet()) {
 				sourceFileList.add(f);
 
-				System.out
-						.println("*** Compiling file: " + f.getAbsolutePath());
+				ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] compiling file: " + f.getAbsolutePath());
 			}
 
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager
@@ -135,7 +146,7 @@ public class DynamicCompilation {
 	public static int BUFFER_SIZE = 10240;
 
 	protected void createJarArchive(File archiveFile, File[] tobeJared,
-			String pathLoc) {
+			String packageName) {
 		try {
 			byte buffer[] = new byte[BUFFER_SIZE];
 			// Open archive file
@@ -148,10 +159,10 @@ public class DynamicCompilation {
 					continue; // Just in case...
 
 				// Add archive entry
-				String fname = pathLoc + tobeJared[i].getName();
+				String fname = packageName + tobeJared[i].getName();
 				JarEntry jarAdd = new JarEntry(fname);
 
-				System.out.println("*** Added file to jar: " + fname);
+				ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] Added class: " + fname + " to jar: " + archiveFile);
 
 				jarAdd.setTime(tobeJared[i].lastModified());
 				out.putNextEntry(jarAdd);
@@ -169,7 +180,6 @@ public class DynamicCompilation {
 
 			out.close();
 			stream.close();
-			System.out.println("Created JAR " + archiveFile.getAbsolutePath());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Error: " + ex.getMessage());

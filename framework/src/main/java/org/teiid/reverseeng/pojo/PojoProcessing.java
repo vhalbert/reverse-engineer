@@ -33,6 +33,7 @@ import java.util.List;
 import org.teiid.core.TeiidException;
 import org.teiid.core.util.StringUtil;
 import org.teiid.reverseeng.Options;
+import org.teiid.reverseeng.ReverseEngineerPlugin;
 import org.teiid.reverseeng.api.AnnotationType;
 import org.teiid.reverseeng.api.Column;
 import org.teiid.reverseeng.api.MetadataProcessor;
@@ -60,17 +61,22 @@ public class PojoProcessing {
 	public PojoProcessing(Options options) {
 		this.path = options.getProperty(Options.Parms.BUILD_LOCATION);
 		if (path == null) path = Options.Parms_Defaults.DEFAULT_BUILD_LOCATION;
+		
+		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.BUILD_LOCATION + " property is: " + (path == null ? "NotSet" : path));
+		
 		annotationType = options.getAnnotationTypeInstance();
 		
 		packageName = options.getProperty(Options.Parms.POJO_PACKAGE_NAME);
 		if (packageName == null) {
 			packageName = Options.Parms_Defaults.DEFAULT_POJO_PACKAGE_NAME;
 		}
+		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.POJO_PACKAGE_NAME + " property is: " + (packageName == null ? "NotSet" : packageName));
 
-		pojoJarName = options.getProperty(Options.Parms.POJO_JAR_NAME);
+		pojoJarName = options.getProperty(Options.Parms.POJO_JAR_FILE);
 		if (pojoJarName == null) {
-			pojoJarName = Options.Parms_Defaults.DEFAULT_POJO_JAR_NAME;
+			pojoJarName = Options.Parms_Defaults.DEFAULT_POJO_JAR_FILE;
 		}
+		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.POJO_JAR_FILE + " property is: " + (pojoJarName == null ? "NotSet" : pojoJarName));
 	
 	}
 	
@@ -100,6 +106,9 @@ public class PojoProcessing {
 	
 	private void performProcess(MetadataProcessor metadata) throws Exception {
 		
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Creating jar file: " + pojoJarName);
+
+		
 		DynamicCompilation dc = new DynamicCompilation();
 
 		File f = new File(path);
@@ -122,8 +131,10 @@ public class PojoProcessing {
 		for (Table t : tables) {
 			
 			if (!t.hasRequiredColumn()) {
-				String msg = "*** Table {" + t.getName() + "} doesn't have a required column (i.e., no primary or unique key defined on the source table)";
-				System.err.println(msg);
+				String msg = "*** Table {" + t.getName() + "} doesn't have a required column (i.e., no primary or unique key defined on the source table).  Will not be processed";
+				
+				ReverseEngineerPlugin.LOGGER.warn("[ReverseEngineering] " + msg);
+
 				this.errors.add( new TeiidException(msg));
 				continue;
 			}
@@ -134,8 +145,6 @@ public class PojoProcessing {
 			
 			File outputFile = new File(f.getAbsolutePath(), fileName);
 						
-			System.out.println("*** Writing java file: " + outputFile.getAbsolutePath());
-
 			FileOutputStream fileOutput = new FileOutputStream(outputFile);
 
 			PrintWriter outputStream = new PrintWriter(fileOutput);
@@ -150,13 +159,15 @@ public class PojoProcessing {
 			printToString(outputStream, t);
 			printFooter(outputStream, t);
 			
-			System.out.println("*** Completed Writing java file: " + outputFile.getAbsolutePath());
-			
 			dc.addFile(outputFile, packageName + "." + className);
+			ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] Created java file: " + outputFile.getAbsolutePath());
 
 		}
 		
 		dc.compile(f, pathLoc.toString(), pojoJarName);	
+		
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Created jar file: " + pojoJarName);
+
 		
 	}
 	

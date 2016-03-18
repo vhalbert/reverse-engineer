@@ -35,7 +35,7 @@
 		  <groupId>org.eclipse.emf</groupId>
 		  <artifactId>org.eclipse.emf.common</artifactId>
 			<scope>provided</scope>
-		</dependency>		        
+		</dependency>					        
 	</dependencies>
 
 	<build>
