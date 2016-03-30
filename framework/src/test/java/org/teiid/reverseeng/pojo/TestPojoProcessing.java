@@ -114,7 +114,8 @@ public class TestPojoProcessing {
 		  options.setTables(tables);
 		  
 		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "protobufannotations");
-		  options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "jarfile" + File.separatorChar + "protobufannotations.jar");
+//	don't set, use the default
+//			options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "protobufannotations"  + File.separatorChar + "kit" + File.separatorChar + "protobufannotations.jar");
 		  options.setProperty(Options.Parms.POJO_PACKAGE_NAME,  "org.jboss.teiid.protobuf.annotation");
 		  
 		  options.setAnnotationType(Options.Annotation_Type.Protobuf);
@@ -122,4 +123,29 @@ public class TestPojoProcessing {
 		  ReverseEngineerFactory.perform(conn, options);
 
     }   
+    
+    
+    
+    @Test
+    public void testBuildingTemplateWithProtobufAnnotationsAndModule() throws Exception {
+		  List<String> tables =  new ArrayList<String>();
+		  tables.add("%");
+
+		  DBOptions options = new DBOptions();
+		  
+		  options.setDbCatalog(null);
+		  options.setDbSchema(null);
+		  options.setTables(tables);
+		  
+		  options.setProperty(Options.Parms.BUILD_LOCATION, UnitTestUtil.getTestScratchPath() + File.separatorChar+ "protobufmodule");
+//	don't set, use the default
+//			options.setProperty(Options.Parms.POJO_JAR_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "protobufannotations"  + File.separatorChar + "kit" + File.separatorChar + "protobufannotations.jar");
+		  options.setProperty(Options.Parms.POJO_PACKAGE_NAME,  "org.jboss.teiid.protobuf.module");
+		  
+		  options.setAnnotationType(Options.Annotation_Type.Protobuf);
+		  options.setProperty(Options.Parms.MODULE_ZIP_FILE, UnitTestUtil.getTestScratchPath() + File.separatorChar + "protobufModule.zip");
+		  
+		  ReverseEngineerFactory.perform(conn, options);
+
+    }      
 }

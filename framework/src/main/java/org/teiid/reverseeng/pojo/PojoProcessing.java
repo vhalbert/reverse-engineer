@@ -44,40 +44,49 @@ import org.teiid.reverseeng.api.Table;
  *
  */
 public class PojoProcessing {
+	
+	private static final String LICENSE_TEMPLATE = "org/teiid/reverseeng/license_template.txt";
 
+	private Options options;
 	private String path;
 	private String packageName;
 	private String pojoJarName;
+	private String suffixClassName;
+	private String moduleZipFileName;
 	private AnnotationType annotationType;
+	private ModulePackaging module = null;
 	private Collection<Exception> errors = new ArrayList<Exception>();
 	
 	public PojoProcessing() {
 	}
 
-	public PojoProcessing(String outpath) {
-		this.path = outpath;
-	}
-
 	public PojoProcessing(Options options) {
+		this.options = options;
+		
 		this.path = options.getProperty(Options.Parms.BUILD_LOCATION);
-		if (path == null) path = Options.Parms_Defaults.DEFAULT_BUILD_LOCATION;
 		
 		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.BUILD_LOCATION + " property is: " + (path == null ? "NotSet" : path));
 		
 		annotationType = options.getAnnotationTypeInstance();
 		
 		packageName = options.getProperty(Options.Parms.POJO_PACKAGE_NAME);
-		if (packageName == null) {
-			packageName = Options.Parms_Defaults.DEFAULT_POJO_PACKAGE_NAME;
-		}
+
 		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.POJO_PACKAGE_NAME + " property is: " + (packageName == null ? "NotSet" : packageName));
 
 		pojoJarName = options.getProperty(Options.Parms.POJO_JAR_FILE);
-		if (pojoJarName == null) {
-			pojoJarName = Options.Parms_Defaults.DEFAULT_POJO_JAR_FILE;
-		}
+
 		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.POJO_JAR_FILE + " property is: " + (pojoJarName == null ? "NotSet" : pojoJarName));
-	
+
+		this.suffixClassName = options.getProperty(Options.Parms.CLASS_NAME_SUFFIX);
+		
+		ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.CLASS_NAME_SUFFIX + " property is: " + (this.suffixClassName == null ? "NotSet" : path));
+		
+		moduleZipFileName =  options.getProperty(Options.Parms.MODULE_ZIP_FILE);
+		if (moduleZipFileName != null) {
+			module = new ModulePackaging();
+			ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] " + Options.Parms.MODULE_ZIP_FILE + " property is: " + moduleZipFileName);
+		}
+
 	}
 	
 	public Collection<Exception> getExceptions() {
@@ -92,12 +101,17 @@ public class PojoProcessing {
 	 * @return boolean true if successful
 	 */
 	public boolean processTables(MetadataProcessor metadata) {
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Start reverse engineering process");
+
 		try {
+
 			performProcess(metadata);
-			
+
 		} catch (Exception e) {
 			errors.add(e);
 		}
+		
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Finished reverse engineering process");
 		
 		if (errors.isEmpty()) return true;
 		
@@ -106,32 +120,53 @@ public class PojoProcessing {
 	
 	private void performProcess(MetadataProcessor metadata) throws Exception {
 		
-		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Creating jar file: " + pojoJarName);
-
-		
-		DynamicCompilation dc = new DynamicCompilation();
-
-		File f = new File(path);
-		if (f.exists()) {
-			f.delete();
+	
+		// remove if already exist
+		File buildLocation = new File(path);
+		if (buildLocation.exists()) {
+			buildLocation.delete();
 		}
+		buildLocation.mkdir();
+			
+		// Location for the .java and .class files
+		File classFileLocaton = new File(buildLocation, "class");
+		classFileLocaton.mkdir();
 		
+		// location for created kits, example: .jar or .zip
+		File kitLocation = new File(buildLocation, "kit"); 
+		kitLocation.mkdir();
+		
+		// parse the package name to use to create the folder structure
 		List<String> nodes = StringUtil.getTokens(packageName, ".");
 		
-		StringBuffer pathLoc = new StringBuffer();
-	
-		for (String n : nodes) {
-			f = new File(f.getAbsolutePath(), n);
-			pathLoc.append(n).append(File.separator);
+		// create a file path structure of only the package name, used for creating path structure for artifacts
+		StringBuffer packageFilePath = new StringBuffer();
 			
-			f.mkdirs();
+		for (String n : nodes) {
+			packageFilePath.append(n).append(File.separator);
+		}
+		
+		File javaFileLoc = new File(classFileLocaton.getAbsolutePath() + File.separator + packageFilePath.toString());
+		javaFileLoc.mkdirs();
+		
+		File pojoJarFile = null;
+		if (pojoJarName != null && pojoJarName.trim().length() > 0) {
+			pojoJarFile = new File(pojoJarName);
+		} else {
+			
+			pojoJarFile = new File(kitLocation, Options.Parms_Defaults.DEFAULT_POJO_JAR_FILE); 
+		}
+		
+		File parentPojoJar = pojoJarFile.getParentFile();
+		if (!parentPojoJar.exists()) {
+			parentPojoJar.mkdirs();
 		}
 
 		List<Table> tables = metadata.getTableMetadata();
 		for (Table t : tables) {
 			
 			if (!t.hasRequiredColumn()) {
-				String msg = "*** Table {" + t.getName() + "} doesn't have a required column (i.e., no primary or unique key defined on the source table).  Will not be processed";
+				String msg = "*** Table {" + t.getName() + "} doesn't have a required key column (i.e., no primary or unique key defined on the source table).  Will not be processed";
 				
 				ReverseEngineerPlugin.LOGGER.warn("[ReverseEngineering] " + msg);
 
@@ -140,10 +175,10 @@ public class PojoProcessing {
 			}
 			
 			String className = t.getClassName();
-		    className = className + "Cache";
-			String fileName = className + ".java";
+		    className = className + (this.suffixClassName != null ? this.suffixClassName : "");
+			String javaFileName = className + ".java";
 			
-			File outputFile = new File(f.getAbsolutePath(), fileName);
+			File outputFile = new File(javaFileLoc.getAbsolutePath(), javaFileName);
 						
 			FileOutputStream fileOutput = new FileOutputStream(outputFile);
 
@@ -159,21 +194,31 @@ public class PojoProcessing {
 			printToString(outputStream, t);
 			printFooter(outputStream, t);
 			
-			dc.addFile(outputFile, packageName + "." + className);
+			fileOutput.close();
+			
 			ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] Created java file: " + outputFile.getAbsolutePath());
 
 		}
 		
-		dc.compile(f, pathLoc.toString(), pojoJarName);	
+		PojoCompilation.compile(javaFileLoc, packageFilePath.toString(), pojoJarFile);	
 		
-		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Created jar file: " + pojoJarName);
+		if (module != null) {
+			try {
+				module.performPackaging(options, packageName, pojoJarFile, moduleZipFileName, buildLocation, packageFilePath.toString(), kitLocation);
+
+//				ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Created module zip: " + pojoJarName);
+
+			} catch(Exception e) {
+				errors.add(e);
+			}
+		}
 
 		
 	}
 	
 	protected void printPackage(PrintWriter outputStream, String packageName) throws IOException {
 		
-		InputStream is = getClass().getClassLoader().getResourceAsStream("org/teiid/reverseeng/template.txt");
+		InputStream is = getClass().getClassLoader().getResourceAsStream(LICENSE_TEMPLATE);
 		if (is != null) { 
 			for( int c = is.read(); c != -1; c = is.read() ) {
 				outputStream.print((char) c);

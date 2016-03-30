@@ -21,28 +21,43 @@
  */
 package org.teiid.reverseeng;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import org.teiid.reverseeng.annotation.HibernateAnnotation;
 import org.teiid.reverseeng.annotation.ProtobufAnnotation;
 import org.teiid.reverseeng.api.AnnotationType;
+import org.teiid.reverseeng.api.Column;
+import org.teiid.reverseeng.api.Table;
 
 /**
+ * The Options class is used to provide controls the the build and packaging process of reverse engineering.  
+ * It provides controls for the following:
+ * <li>{@code Parms.BUILD_LOCATIION} : where the code will be located
+ * <li>{@code Parms.POJO_PACKAGE_NAME} : what is the package name used in the class
+ * <li>{@code Parms.POJO_JAR_FILE} : what jar file to package the classes
+ * <li>{@code Parms.ANNOTATION} : what type of annotations to use
+ * <br>
+ * There are defaults, {@code Parms_Defaults}, that will be used if any of the above are not provided.
+ * 
  * @author vanhalbert
  *
  */
 public class Options {
 	
-	private static final HibernateAnnotation HIBERNATE = new HibernateAnnotation();
-	private static final ProtobufAnnotation PROTOBUF = new ProtobufAnnotation();
-	
 	public interface Parms {
-		/* [Optional] The location the java files will be created */
+		/* [Optional] The location the reverse engineering process will be done */
 		public static final String BUILD_LOCATION = "build_location";
 		/* [Optional] The package name to use for the java files */
 		public static final String POJO_PACKAGE_NAME = "pojo_package_name";
-		/* [Optional] The pojo jar file, with preferable, including the full path  */
+		/* [Optional] The pojo jar file, with preferable, including the full path.  If path not specified, will use build_location */
 		public static final String POJO_JAR_FILE = "pojo_jar_file";
+		/* [Optional] The module zip name, if not specified, the module will not be created */
+		public static final String MODULE_ZIP_FILE = "module_zip_file";
+		
+		/* [Optional] Used to change or remove the suffix of "Cache" added to the class name */
+		public static final String CLASS_NAME_SUFFIX = "class_name_suffix";
 
 		/* [Optional] Choose either Hiberanate or Protobuf annotations to the java file */
 		public static final String ANNOTATION = "annotation";
@@ -53,6 +68,7 @@ public class Options {
 		public static final String DEFAULT_POJO_PACKAGE_NAME = "org.teiid.pojo";
 		public static final String DEFAULT_BUILD_LOCATION = ".";
 		public static final String DEFAULT_POJO_JAR_FILE = "pojo.jar";
+		public static final String DEFAULT_CLASS_NAME_SUFFIX = "Cache";
 	}
 	
 	private Properties properties = new Properties();
@@ -63,6 +79,13 @@ public class Options {
 		Unknown		
 	}
 	
+	public Options() {
+		setProperty(Parms.BUILD_LOCATION, Parms_Defaults.DEFAULT_BUILD_LOCATION);
+		setProperty(Parms.POJO_PACKAGE_NAME, Parms_Defaults.DEFAULT_POJO_PACKAGE_NAME);
+//		setProperty(Parms.POJO_JAR_FILE, Parms_Defaults.DEFAULT_POJO_JAR_FILE);
+		setProperty(Parms.CLASS_NAME_SUFFIX, Parms_Defaults.DEFAULT_CLASS_NAME_SUFFIX);
+
+	}
 	
 	private Annotation_Type annotation_type;
 	
@@ -89,23 +112,47 @@ public class Options {
 	}
 	
 	public boolean useHibernateAnnotations() {
-		return (annotation_type == Annotation_Type.Hibernate);
+		return (annotation_type != null && annotation_type == Annotation_Type.Hibernate);
 	}
 	
 	
 	public boolean useProtobufAnnotations() {
-		return (annotation_type == Annotation_Type.Protobuf);
+		return (annotation_type != null && annotation_type == Annotation_Type.Protobuf);
 	}
 	
 	public AnnotationType getAnnotationTypeInstance() {
 		if (useHibernateAnnotations()) { 
-			return HIBERNATE;
+			return new HibernateAnnotation();
 		}
 		if (useProtobufAnnotations()) {
-			return PROTOBUF;
+			return new ProtobufAnnotation();
 		}
+			
+		AnnotationType unknown = new AnnotationType()  {
+			
+			@Override
+			public String getClassAnnotation(Table t) {
+				return "";
+			}
+
+			@Override
+			public String getAttributeAnnotation(Column c) {
+				return "";
+			}
+
+			@Override
+			public String getGetterMethodAnnotation(Column c) {
+				return "";
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public List<String> getImports() {
+				return Collections.EMPTY_LIST;
+			}
+		};
 		
-		return null;
+		return unknown;
 	}
 
 }

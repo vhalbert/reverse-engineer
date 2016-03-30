@@ -24,7 +24,7 @@
 		<version.org.jboss.teiid>8.12.0.Final</version.org.jboss.teiid>
 		<version.mysql.mysql-connector-java>5.1.25</version.mysql.mysql-connector-java>
     	<version.org.codehaus.mojo.exec.plugin>1.2.1</version.org.codehaus.mojo.exec.plugin>
-    	<version.org.infinispan.protostream>3.0.4.Final</version.org.infinispan.protostream>
+    	<version.org.infinispan.protostream>3.0.5.Final</version.org.infinispan.protostream>
 		<main.class.remote-query>org.teiid.reverseeng.GeneratePojoFromDB</main.class.remote-query>
 		
 	</properties>
@@ -49,6 +49,12 @@
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-all</artifactId>
 				<version>${version.org.mockito}</version>
+			</dependency>
+			<dependency>
+	            <groupId>org.jboss.teiid</groupId>
+	            <artifactId>teiid</artifactId>
+	            <classifier>jdbc</classifier>
+	            <version>${version.org.jboss.teiid}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.teiid</groupId>

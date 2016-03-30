@@ -7,8 +7,6 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<!-- <parent> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-parent</artifactId> 
-		<version>7.4.2.Final-redhat-2</version> </parent> -->
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>framework</artifactId>
 	<name>Framework to Reverse Engineer a View into Java Objects</name>
@@ -19,74 +17,65 @@
 	</properties>
 
 	<dependencies>
-
+		<dependency>
+            <groupId>org.jboss.teiid</groupId>
+            <artifactId>teiid</artifactId>
+            <classifier>jdbc</classifier>
+		</dependency>
 		<dependency>
 			<groupId>org.teiid.util</groupId>
 			<artifactId>teiid-desginer-apis</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-api</artifactId>
 			<type>test-jar</type>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-common-core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-common-core</artifactId>
 			<type>test-jar</type>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-metadata</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-client</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-admin</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-engine</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-engine</artifactId>
 			<type>test-jar</type>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid</groupId>
 			<artifactId>teiid-runtime</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.teiid.connectors</groupId>
 			<artifactId>translator-loopback</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan.protostream</groupId>

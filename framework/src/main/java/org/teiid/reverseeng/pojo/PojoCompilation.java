@@ -25,9 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -46,46 +44,54 @@ import org.teiid.core.util.StringUtil;
 import org.teiid.reverseeng.ReverseEngineerPlugin;
 
 /**
- * Reference for dynamically compiling and assembly
- * https://github.com/Teiid-Designer/teiid-designer/blob/
- * 2639eaed21353797fd9b2eb5b57ab9bee2f388cc/plugins/org.teiid.designer.dqp.ui/src/org/teiid/designer/runtime/ui/wizards/webservices/util/DefaultWebArchiveBuilderImpl.java#L582
+ * DynamicCompiliation is responsible for compiling and assembly from a directory location containing .java files. 
+ * Based on the file location provided, it will look for all .java files within the directory structure.
+ * Those files will be included in the compilation and then assembled into the final .jar assembly .
  * 
  * @author vanhalbert
  *
  */
-public class DynamicCompilation {
-
-	private Map<File, String> files = new HashMap<File, String>();
-
-	public void addFile(File f, String classname) {
-		files.put(f, classname);
-	}
+public class PojoCompilation {
 
 	/**
 	 * 
-	 * @param loc is where to find the .class files that were compiled
-	 * @param packageNameInJar is the package name to use when adding to archive
-	 * @param fullPathToJar is the full path of the jar to be created
+	 * @param loc is where to find the .java files that are to be compiled.  This is based on the 
+	 * build location 
+	 * @param packageName , in file path format, to use when adding to archive
+	 * @param pojoJarFile is the pojo jar file to be created
 	 * @throws Exception
 	 */
-	public void compile(File loc, String packageNameInJar, String fullPathToJar)
+	public static void compile(File loc, String packageName, File pojoJarFile)
 			throws Exception {
+		
+		
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Creating jar file: " + pojoJarFile.getAbsolutePath());
 
-		compileFiles();
+
+		File[] javaFiles = FileUtils.findAllFilesInDirectoryHavingExtension(
+				loc.getCanonicalPath(), ".java");
+
+		if (javaFiles == null || javaFiles.length == 0) {
+			throw new Exception("No java source files found at " +  loc.getCanonicalPath());
+		}
+
+		
+		compileFiles(javaFiles);
 
 		File[] files = FileUtils.findAllFilesInDirectoryHavingExtension(
 				loc.getCanonicalPath(), ".class");
 
-		File archive = new File(fullPathToJar);
-		File parent = archive.getParentFile();
+		File parent = pojoJarFile.getParentFile();
 		if (!parent.exists()) {
 			parent.mkdirs();
 		}
-		createJarArchive(archive, files, packageNameInJar);
+		createJarArchive(pojoJarFile, files, packageName);
+
+		ReverseEngineerPlugin.LOGGER.info("[ReverseEngineering] Created jar file: " + pojoJarFile.getAbsolutePath());
 
 	}
 
-	private void compileFiles() throws Exception {
+	private static void compileFiles(File[] javaFiles) throws Exception {
 
 		// Compile classes
 		JavaCompiler compilerTool = ToolProvider.getSystemJavaCompiler();
@@ -113,10 +119,14 @@ public class DynamicCompilation {
 
 			// prepare the source files to compile
 			List<File> sourceFileList = new ArrayList<File>();
-			for (File f : files.keySet()) {
-				sourceFileList.add(f);
-
-				ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] compiling file: " + f.getAbsolutePath());
+			
+			for (int i = 0; i < javaFiles.length; i++) {
+				if (javaFiles[i] == null || !javaFiles[i].exists()
+						|| javaFiles[i].isDirectory())
+					continue; // Just in case...
+				
+				sourceFileList.add(javaFiles[i]);
+				ReverseEngineerPlugin.LOGGER.debug("[ReverseEngineering] compiling file: " + javaFiles[i].getAbsolutePath());
 			}
 
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager
@@ -145,8 +155,9 @@ public class DynamicCompilation {
 
 	public static int BUFFER_SIZE = 10240;
 
-	protected void createJarArchive(File archiveFile, File[] tobeJared,
-			String packageName) {
+	protected static void createJarArchive(File archiveFile, File[] tobeJared,
+			String packageName) throws Exception {
+		
 		try {
 			byte buffer[] = new byte[BUFFER_SIZE];
 			// Open archive file
@@ -181,9 +192,11 @@ public class DynamicCompilation {
 			out.close();
 			stream.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			System.out.println("Error: " + ex.getMessage());
+			ex.printStackTrace();
+			throw ex;
 		}
+		
 	}
 
 }

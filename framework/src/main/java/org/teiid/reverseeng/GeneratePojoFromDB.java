@@ -121,8 +121,8 @@ public class GeneratePojoFromDB {
 	      conn = connect(jdbcDriver, dbUrl, user, password);
 	  }
 	  catch (ClassNotFoundException eClass) {
-	      System.err.println("ERROR: Driver couldn't be loaded for: " + jdbcDriver);
-	      System.err.println("Error message is: " + eClass.getMessage());
+	      System.err.println("ERROR: ClassNotFound, Driver couldn't be loaded for: " + jdbcDriver);
+	      eClass.printStackTrace(System.err);
 	      System.exit(3);
 	  }
 	  catch (SQLException eSQL) {

@@ -48,7 +48,8 @@ public class ReverseEngineerPlugin {
     }
     
     public static enum Event implements BundleUtil.Event{
-    	NO_METADATA
+    	NO_METADATA,
+    	POJO_DOESNT_EXIST
     }
     
     private static void initializeLogger()

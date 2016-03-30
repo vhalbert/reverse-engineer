@@ -8,8 +8,6 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<!-- <parent> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-parent</artifactId> 
-		<version>7.4.2.Final-redhat-2</version> </parent> -->
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>teiid-desginer-apis</artifactId>
 	<name>Teiid Designer API's</name>
