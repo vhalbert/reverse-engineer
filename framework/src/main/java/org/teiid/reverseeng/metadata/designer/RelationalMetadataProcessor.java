@@ -24,19 +24,28 @@ package org.teiid.reverseeng.metadata.designer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.common.util.EList;
 import org.teiid.core.TeiidException;
 import org.teiid.reverseeng.Options;
 import org.teiid.reverseeng.api.Column;
 import org.teiid.reverseeng.api.MetadataProcessor;
 import org.teiid.reverseeng.api.Table;
+import org.teiid.designer.core.types.*;
+import org.teiid.designer.metamodels.relational.NullableType;
 /**
  * @author vanhalbert
  *
  */
 public final class RelationalMetadataProcessor implements MetadataProcessor {
 
+	private DatatypeManager dataTypeMgr = null;
 	private List<Table> tableMetadata = new ArrayList<Table>();
 	
+	public RelationalMetadataProcessor(DatatypeManager dataTypeMgr) {
+		super();
+		this.dataTypeMgr = dataTypeMgr;
+	}
 	@Override
 	public List<org.teiid.reverseeng.api.Table> getTableMetadata() {
 		return this.tableMetadata;
@@ -52,9 +61,12 @@ public final class RelationalMetadataProcessor implements MetadataProcessor {
 		
 		Table reltable = new Table(table.getName());
 		
-		List<Column> columns = table.getColumns();
-		for( Column col : columns ) {
-			addColumn(col, reltable);
+		@SuppressWarnings("unchecked")
+		EList<org.teiid.designer.metamodels.relational.Column> columns = table.getColumns();
+		for( org.teiid.designer.metamodels.relational.Column col : columns ) {
+			if (col.isSelectable()) {
+				addColumn(col, reltable);
+			}
 		}		
 			
 	}
@@ -65,26 +77,31 @@ public final class RelationalMetadataProcessor implements MetadataProcessor {
 	 * @param column
 	 * @param reltable 
 	 */
-	private void addColumn(Column column, Table reltable)  {
+	private void addColumn(org.teiid.designer.metamodels.relational.Column column, Table reltable)  {
 
 		Column relcolumn = reltable.createColumn(column.getName());
 		
-		relcolumn.setType(column.getType());
-		relcolumn.setTypeName(column.getTypeName());
-		relcolumn.setOrder(column.getOrder());
+//		relcolumn.setType(column.getType().);
+		relcolumn.setTypeName(dataTypeMgr.getRuntimeTypeName(column.getType()));
+//		relcolumn.setOrder(column.getOrder());
 		relcolumn.setPrecision(column.getPrecision());
-		relcolumn.setMaxLength(column.getMaxLength());
+		relcolumn.setMaxLength(column.getLength());
 		relcolumn.setScale(column.getScale());
 		
-		relcolumn.setNullType(column.getNullType());
+//		NullType nt = new NullType(column.getNullable().getValue());
+//		relcolumn.setNullType(new NullType());
 			
-		relcolumn.setRemarks(column.getRemarks());
+//		relcolumn.setRemarks(column.getRemarks());
 		
 		relcolumn.setDefaultValue(column.getDefaultValue());
-		relcolumn.setIsIndexed(column.isIndexed());
+//		relcolumn.setIsIndexed(column.isIndexed());
 		
-		relcolumn.setIsRequired( column.isRequired()  ); 
+		relcolumn.setIsRequired( column.getNullable().equals(NullableType.NO_NULLS_LITERAL)  ); 
 		
+	}
+	
+	private void getRuntimeTypeName(EObject o) {
+		String runtimeTypeName = dataTypeMgr.getRuntimeTypeName(o);
 	}
 
 }

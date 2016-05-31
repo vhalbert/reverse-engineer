@@ -29,6 +29,7 @@ import org.teiid.reverseeng.metadata.db.DBMetadataProcessor;
 import org.teiid.reverseeng.metadata.db.DBOptions;
 import org.teiid.reverseeng.metadata.designer.RelationalMetadataProcessor;
 import org.teiid.reverseeng.pojo.PojoProcessing;
+import org.teiid.designer.core.types.*;
 
 /**
  * @author vanhalbert
@@ -69,10 +70,10 @@ public class ReverseEngineerFactory {
 	 * @return boolean indicator if the process was success, return <code>false</code> then check for errors
 	 * @throws Exception
 	 */
-	public static boolean perform(org.teiid.designer.metamodels.relational.Table table, Options options) throws Exception {
+	public static boolean perform(org.teiid.designer.metamodels.relational.Table table, DatatypeManager dataTypemgr, Options options) throws Exception {
 	    errors = null;
 	    
-		  MetadataProcessor metadata = new RelationalMetadataProcessor();
+		  MetadataProcessor metadata = new RelationalMetadataProcessor(dataTypemgr);
 		  metadata.loadMetadata(table, options);
 	  	
 		  PojoProcessing tp = new PojoProcessing(options);

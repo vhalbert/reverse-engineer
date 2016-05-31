@@ -38,7 +38,7 @@
 			<dependency>
 				<groupId>org.teiid.util</groupId>
 				<artifactId>teiid-desginer-apis</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>${version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -126,7 +126,6 @@
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
 				<version>2.6.0.redhat-4</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.infinispan.protostream</groupId>
